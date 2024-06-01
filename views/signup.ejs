@@ -1,0 +1,24 @@
+<%- include('partials/header'); -%>
+
+<form>
+  <h1>Sign up</h1>
+  <label for="email">Email</label>
+  <input type="email" required name="email" />
+  <div class="email error"></div>
+  <label for="password">Password</label>
+  <input type="password" required name="password" />
+  <div class="password error"></div>
+  <button>Submit</button>
+</form>
+
+<script>
+  const form = document.querySelector("form");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = form.email.value;
+    const password = form.password.value;
+    console.log(email);
+  });
+</script>
+
+<%- include('partials/footer'); -%>
