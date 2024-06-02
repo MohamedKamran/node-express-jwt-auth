@@ -21,4 +21,26 @@ const requireAuth = (req, res, next) => {
   }
 };
 
-module.exports = { requireAuth };
+// get current user
+const checkUser = (req, res, next) => {
+  const token = req.cookies.jwt;
+  if (token) {
+    jwt.verify(
+      token,
+      "some long secret which bad guis will copy",
+      (err, decodedToken) => {
+        if (err) {
+          console.log(err.message);
+          next();
+        } else {
+          console.log(decodedToken);
+          let user = User.findById(decodedToken.id);
+          res.locals.user = user;
+          next();
+        }
+      }
+    );
+  }
+};
+
+module.exports = { requireAuth, checkUser };
