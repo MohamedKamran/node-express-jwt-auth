@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const ar = require("./routes/authRoutes");
 const cookieParser = require("cookie-parser");
+const { requireAuth } = require("./middleware/auth.middleware");
 
 const app = express();
 
@@ -27,7 +28,7 @@ mongoose
 
 // routes
 app.get("/", (req, res) => res.render("home"));
-app.get("/smoothies", (req, res) => res.render("smoothies"));
+app.get("/smoothies", requireAuth, (req, res) => res.render("smoothies"));
 app.use(ar);
 app.get("/set-cookies", (req, res) => {
   res.cookie("newUser", false, {
@@ -40,7 +41,7 @@ app.get("/set-cookies", (req, res) => {
 
 app.get("/read-cookies", (req, res) => {
   const cookies = req.cookies;
-  console.log(cookies);
+  console.log(cookies.newUser);
   res.json(cookies);
 });
 

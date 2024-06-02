@@ -1,6 +1,22 @@
 const User = require("../models/user.model");
+const jwt = require("jsonwebtoken");
 
 // controller actions
+
+const maxAge = 3 * 24 * 60 * 60;
+
+const createToken = (id) => {
+  return jwt.sign(
+    {
+      id,
+    },
+    "some long secret which bad guis will copy",
+    {
+      expiresIn: maxAge,
+    }
+  );
+};
+
 module.exports.signup_get = (req, res) => {
   res.render("signup");
 };
@@ -12,14 +28,27 @@ module.exports.login_get = (req, res) => {
 module.exports.signup_post = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user1 = await User.create({ email, password });
-    res.status(201).json(user1);
+    const user = await User.create({ email, password });
+    const token = createToken(user._id);
+    res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+    res.status(201).json({ user: user._id });
+  } catch (err) {
+    res.status(400).json(err);
+  }
+};
+module.exports.login_post = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.login(email, password);
+    const token = createToken(user._id);
+    res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
+    res.status(200).json({ user: user._id });
   } catch (error) {
-    res.status(400).send("error");
+    res.status(400).json({ error });
   }
 };
 
-module.exports.login_post = async (req, res) => {
-  const { email, password } = req.body;
-  res.send("user login");
+module.exports.logout_get = (req, res) => {
+  res.cookie("jwt", "", { maxAge: 1 });
+  res.redirect("/");
 };
